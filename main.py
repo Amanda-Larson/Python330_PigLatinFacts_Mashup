@@ -1,28 +1,38 @@
 import os
-
 import requests
-from flask import Flask, send_file, Response
+from flask import Flask, Response
 from bs4 import BeautifulSoup
-
+import pysnooper
 app = Flask(__name__)
 
 
-def get_fact():
-
-    response = requests.get("http://unkno.com")
+def get_simile():
+    response = requests.get("https://random-simile-generator.herokuapp.com/")
 
     soup = BeautifulSoup(response.content, "html.parser")
-    facts = soup.find_all("div", id="content")
+    simile = soup.find_all("div", id="content")
+    simile = simile[0].getText()
+    return simile.strip()
 
-    return facts[0].getText()
+@pysnooper.snoop(depth=2)
+def pig_latinize():
+    simile = get_simile().strip()
+    form_data = {'input_text': simile}
+    response = requests.post("https://hidden-journey-62459.herokuapp.com/piglatinize/", data=form_data, allow_redirects=False)
+    link = response.headers['Location']
+
+    return link
+
+
 
 
 @app.route('/')
 def home():
-    return "FILL ME!"
+    piglatin_simile = pig_latinize()
+    # simile = get_simile()
+    return piglatin_simile
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 6787))
     app.run(host='0.0.0.0', port=port)
-
