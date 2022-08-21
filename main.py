@@ -2,7 +2,6 @@ import os
 import requests
 from flask import Flask, Response
 from bs4 import BeautifulSoup
-import pysnooper
 
 app = Flask(__name__)
 
@@ -16,7 +15,7 @@ def get_simile():
     return simile.strip()
 
 
-# @pysnooper.snoop(depth=2)
+
 def pig_latinize():
     simile = get_simile().strip("\"")
     form_data = {'input_text': simile}
@@ -26,7 +25,7 @@ def pig_latinize():
 
     return link
 
-@pysnooper.snoop()
+
 def show_results():
     url = pig_latinize()
     response = requests.get(url)
