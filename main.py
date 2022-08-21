@@ -15,21 +15,36 @@ def get_simile():
     simile = simile[0].getText()
     return simile.strip()
 
+
 # @pysnooper.snoop(depth=2)
 def pig_latinize():
     simile = get_simile().strip("\"")
     form_data = {'input_text': simile}
-    response = requests.post("https://hidden-journey-62459.herokuapp.com/piglatinize/", data=form_data, allow_redirects=False)
+    response = requests.post("https://hidden-journey-62459.herokuapp.com/piglatinize/", data=form_data,
+                             allow_redirects=False)
     link = response.headers['Location']
 
     return link
+
+@pysnooper.snoop()
+def show_results():
+    url = pig_latinize()
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    results = soup.find("body")
+    piglatin = results.getText()
+    return piglatin
 
 
 @app.route('/')
 def home():
     piglatin_simile = pig_latinize()
-    simile = get_simile()
-    return f"<a href={piglatin_simile}>Click here to see pig latin-ized simile</a>"
+    results = show_results().strip("\nPig Latin\nEsultray\n\t\n    ")
+    # simile = get_simile()
+    print(results)
+    return f"""<h1>Pig-Latinized simile: </h1>
+    <h2>{results}</h2>
+    <a href={piglatin_simile}>Click here to see pig latin-ized simile</a>"""
 
 
 if __name__ == "__main__":
